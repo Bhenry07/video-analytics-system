@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Test coverage
+coverage/
+
+# Build outputs
+dist/
+build/
+
+# Uploads
+uploads/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Legacy files
+public/app.js

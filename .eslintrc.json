@@ -1,0 +1,68 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "node": true,
+    "jest": true
+  },
+  "extends": ["eslint:recommended", "prettier"],
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "plugins": ["prettier"],
+  "globals": {
+    "DetectionEngine": "readonly",
+    "ChartManager": "readonly",
+    "UIController": "readonly",
+    "DataExporter": "readonly",
+    "ErrorHandler": "readonly",
+    "ProfileManager": "readonly",
+    "videojs": "readonly"
+  },
+  "rules": {
+    "prettier/prettier": "error",
+    "no-console": "off",
+    "no-unused-vars": [
+      "warn",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_"
+      }
+    ],
+    "prefer-const": "error",
+    "no-var": "error",
+    "eqeqeq": ["error", "always"],
+    "curly": ["error", "all"],
+    "brace-style": ["error", "1tbs"],
+    "no-multiple-empty-lines": ["error", { "max": 1 }],
+    "semi": ["error", "always"],
+    "quotes": ["error", "single", { "avoidEscape": true }],
+    "indent": ["error", 2, { "SwitchCase": 1 }],
+    "comma-dangle": ["error", "never"],
+    "arrow-parens": ["error", "always"],
+    "space-before-function-paren": [
+      "error",
+      {
+        "anonymous": "always",
+        "named": "never",
+        "asyncArrow": "always"
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["tests/**/*.js"],
+      "rules": {
+        "no-undef": "off"
+      }
+    },
+    {
+      "files": ["public/app-refactored.js"],
+      "globals": {
+        "ProfileManager": "readonly"
+      }
+    }
+  ],
+  "ignorePatterns": ["node_modules/", "coverage/", "uploads/", "public/app.js"]
+}

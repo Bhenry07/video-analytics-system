@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Video Analytics - AI Detection System</title>
+    <link href="/node_modules/video.js/dist/video-js.css" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css?v=7" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>🎥 Video Analytics System</h1>
+        <p>AI-Powered Object Detection & Analytics</p>
+      </header>
+
+      <div class="main-content">
+        <!-- Left Sidebar - Controls -->
+        <aside class="sidebar">
+          <div class="upload-section">
+            <h3>📁 Upload Video</h3>
+            <input type="file" id="videoUpload" accept="video/*" class="file-input" />
+            <button id="uploadBtn" class="btn btn-primary">Upload</button>
+            <p class="upload-note">Maximum file size: 5GB</p>
+            <div id="uploadProgress" class="progress-bar hidden">
+              <div class="progress-fill"></div>
+            </div>
+          </div>
+
+          <div class="videos-list">
+            <h3>📹 Recent Videos</h3>
+            <div id="videosList"></div>
+          </div>
+
+          <div class="detection-config">
+            <h3>⚙️ Detection Settings</h3>
+
+            <label class="checkbox-label">
+              <input type="checkbox" id="detectPeople" checked />
+              <span>👤 Detect People</span>
+            </label>
+
+            <label class="checkbox-label">
+              <input type="checkbox" id="detectVehicles" checked />
+              <span>🚗 Detect Vehicles</span>
+            </label>
+
+            <label class="checkbox-label">
+              <input type="checkbox" id="detectAnimals" />
+              <span>🐕 Detect Animals</span>
+            </label>
+
+            <label class="checkbox-label">
+              <input type="checkbox" id="detectSports" />
+              <span>⚽ Detect Sports Equipment</span>
+            </label>
+
+            <label class="checkbox-label">
+              <input type="checkbox" id="detectFurniture" />
+              <span>🪑 Detect Furniture</span>
+            </label>
+
+            <label class="checkbox-label">
+              <input type="checkbox" id="detectPaymentSystems" />
+              <span>💳 Detect POS/ATM Systems</span>
+            </label>
+
+            <label class="checkbox-label">
+              <input type="checkbox" id="detectObjects" checked />
+              <span>📦 Detect Objects</span>
+            </label>
+
+            <div class="slider-control">
+              <label>Confidence Threshold: <span id="confidenceValue">50</span>%</label>
+              <input type="range" id="confidenceThreshold" min="0" max="100" value="50" />
+            </div>
+
+            <div class="slider-control">
+              <label>Detection FPS: <span id="fpsValue">5</span></label>
+              <input type="range" id="detectionFPS" min="1" max="30" value="5" />
+            </div>
+
+            <div class="profile-controls">
+              <h4>📋 Detection Profiles</h4>
+              <select id="profileSelect" class="profile-select">
+                <option value="">-- Select Profile --</option>
+                <option value="traffic">🚦 Traffic Monitoring</option>
+                <option value="wildlife">🦁 Wildlife Detection</option>
+                <option value="indoor">🏠 Indoor Surveillance</option>
+                <option value="sports">⚽ Sports Analysis</option>
+                <option value="custom">💾 Custom Profiles...</option>
+              </select>
+              <div class="profile-buttons">
+                <button id="saveProfile" class="btn btn-small">💾 Save</button>
+                <button id="loadProfile" class="btn btn-small">📂 Load</button>
+                <button id="deleteProfile" class="btn btn-small">🗑️ Delete</button>
+              </div>
+            </div>
+
+            <button id="startAnalysis" class="btn btn-success" disabled>▶ Start Analysis</button>
+            <button id="stopAnalysis" class="btn btn-danger hidden">⏹ Stop Analysis</button>
+            <button id="exportData" class="btn btn-secondary" disabled>💾 Export Data</button>
+          </div>
+
+          <div class="model-status">
+            <h3>🤖 Model Status</h3>
+            <div id="modelStatus" class="status-indicator">
+              <span class="status-dot loading"></span>
+              <span class="status-text">Loading AI Model...</span>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Main Video Area -->
+        <main class="video-section">
+          <div class="video-container">
+            <div id="videoPlaceholder" class="video-placeholder">
+              <div class="placeholder-content">
+                <div class="placeholder-icon">🎬</div>
+                <h3>No Video Loaded</h3>
+                <p>Upload a video or select one from "Recent Videos" to begin analysis</p>
+              </div>
+            </div>
+            <video
+              id="videoPlayer"
+              class="video-js vjs-default-skin vjs-big-play-centered"
+              controls
+              preload="auto"
+              width="960"
+              height="540"
+              style="display: none"
+            ></video>
+            <canvas id="detectionCanvas"></canvas>
+          </div>
+
+          <div class="analytics-section">
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-icon">👤</div>
+                <div class="stat-content">
+                  <div class="stat-value" id="peopleCount">0</div>
+                  <div class="stat-label">People Detected</div>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon">🚗</div>
+                <div class="stat-content">
+                  <div class="stat-value" id="vehicleCount">0</div>
+                  <div class="stat-label">Vehicles Detected</div>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon">🐕</div>
+                <div class="stat-content">
+                  <div class="stat-value" id="animalCount">0</div>
+                  <div class="stat-label">Animals Detected</div>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon">⚽</div>
+                <div class="stat-content">
+                  <div class="stat-value" id="sportsCount">0</div>
+                  <div class="stat-label">Sports Equipment</div>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon">🪑</div>
+                <div class="stat-content">
+                  <div class="stat-value" id="furnitureCount">0</div>
+                  <div class="stat-label">Furniture Detected</div>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon">�</div>
+                <div class="stat-content">
+                  <div class="stat-value" id="paymentSystemCount">0</div>
+                  <div class="stat-label">POS/ATM Detected</div>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon">�📦</div>
+                <div class="stat-content">
+                  <div class="stat-value" id="objectCount">0</div>
+                  <div class="stat-label">Total Objects</div>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon">⚡</div>
+                <div class="stat-content">
+                  <div class="stat-value" id="processingFPS">0</div>
+                  <div class="stat-label">Processing FPS</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="chart-container">
+              <h3>📊 Detection Timeline</h3>
+              <canvas id="timelineChart"></canvas>
+            </div>
+
+            <div class="detections-log">
+              <h3>📋 Detection Log</h3>
+              <div id="detectionLog" class="log-content"></div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script src="/node_modules/@tensorflow/tfjs/dist/tf.min.js"></script>
+    <script src="/node_modules/@tensorflow-models/coco-ssd/dist/coco-ssd.min.js"></script>
+    <script src="/node_modules/video.js/dist/video.min.js"></script>
+    <script src="/node_modules/chart.js/dist/chart.umd.js"></script>
+
+    <!-- Load modules -->
+    <script src="modules/error-handler.js"></script>
+    <script src="modules/profile-manager.js"></script>
+    <script src="modules/detection-engine.js"></script>
+    <script src="modules/chart-manager.js"></script>
+    <script src="modules/data-exporter.js"></script>
+    <script src="modules/ui-controller.js"></script>
+
+    <!-- Load main application (use app-refactored.js for new modular version) -->
+    <script src="app-refactored.js"></script>
+  </body>
+</html>
