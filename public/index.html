@@ -32,8 +32,165 @@
             <div id="videosList"></div>
           </div>
 
+          <div class="frame-extraction">
+            <h3>🎬 Frame Extraction Tool</h3>
+            <p class="section-note">Extract frames for training data</p>
+            
+            <div class="extraction-controls">
+              <div class="extraction-setting-card">
+                <div class="setting-header">
+                  <span class="setting-icon">⚡</span>
+                  <label class="setting-label">Extraction Rate: <span id="extractionFpsValue" class="setting-value">0.5</span> fps</label>
+                </div>
+                <input type="range" id="extractionFps" min="0.1" max="5" step="0.1" value="0.5" class="extraction-slider" />
+                <p class="control-hint">📏 <span id="extractionHint">1 frame every 2 seconds</span></p>
+              </div>
+
+              <div class="extraction-setting-card">
+                <div class="setting-header">
+                  <span class="setting-icon">🎨</span>
+                  <label class="setting-label">Image Quality: <span id="extractionQualityValue" class="setting-value">95</span>%</label>
+                </div>
+                <input type="range" id="extractionQuality" min="50" max="100" step="5" value="95" class="extraction-slider" />
+                <p class="control-hint">💎 Higher quality = larger file sizes</p>
+              </div>
+
+              <div class="extraction-options">
+                <div class="option-card">
+                  <label class="checkbox-label-enhanced">
+                    <input type="checkbox" id="skipSimilarFrames" />
+                    <span class="checkbox-custom"></span>
+                    <div class="option-info">
+                      <span class="option-title">🔄 Skip Similar Frames</span>
+                      <span class="option-description">Skip frames that are 98.5%+ identical (good for static scenes)</span>
+                    </div>
+                  </label>
+                </div>
+
+                <div class="option-card">
+                  <label class="checkbox-label-enhanced">
+                    <input type="checkbox" id="autoOrganize" checked />
+                    <span class="checkbox-custom"></span>
+                    <div class="option-info">
+                      <span class="option-title">📁 Auto-Organize by Time Period</span>
+                      <span class="option-description">Group frames by morning, midday, afternoon, evening, night</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <div class="extraction-buttons">
+                <button id="extractFramesBtn" class="btn btn-primary" disabled>
+                  🎬 Extract Frames
+                </button>
+                <button id="previewFramesBtn" class="btn btn-secondary" disabled>
+                  👁️ Preview
+                </button>
+              </div>
+
+              <div id="extractionProgress" class="extraction-progress hidden">
+                <div class="progress-info">
+                  <span id="extractionStatus">Extracting...</span>
+                  <span id="extractionCount">0 / 0</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill" id="extractionProgressFill"></div>
+                </div>
+              </div>
+
+              <div id="extractionStats" class="extraction-stats hidden">
+                <h4>Extraction Complete!</h4>
+                <p>Frames Extracted: <strong id="statsExtracted">0</strong></p>
+                <p>Frames Skipped: <strong id="statsSkipped">0</strong></p>
+                <p>Duration: <strong id="statsDuration">0s</strong></p>
+                <div class="export-buttons">
+                  <button id="exportAllFrames" class="btn btn-small">
+                    💾 Download All Frames
+                  </button>
+                  <button id="exportManifest" class="btn btn-small">
+                    📋 Download Manifest
+                  </button>
+                  <button id="viewFrames" class="btn btn-small">
+                    👁️ View Frames
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Auto-Labeling & Training Section -->
+          <div class="auto-labeling-section" id="labelingSection" style="display: block;">
+            <h3>🎯 Label Training Data</h3>
+            <p class="section-note">Auto-label frames and refine for model training</p>
+            
+            <!-- Class Setup -->
+            <div class="class-setup-card">
+              <h4>📋 Banking Classes</h4>
+              <div class="classes-display">
+                <div class="class-badge">👔 bank-teller</div>
+                <div class="class-badge">🏦 teller-station</div>
+                <div class="class-badge">🧑‍💼 customer-at-teller</div>
+                <div class="class-badge">💳 customer-at-atm</div>
+                <div class="class-badge">🏧 atm-machine</div>
+              </div>
+            </div>
+            
+            <!-- Auto-Label Controls -->
+            <div class="auto-label-controls">
+              <button id="autoLabelAllBtn" class="btn btn-primary">
+                ⚡ Auto-Label All Frames
+              </button>
+              <button id="reviewLabelsBtn" class="btn btn-secondary">
+                👀 Review Labels
+              </button>
+              <button id="exportDatasetBtn" class="btn btn-success">
+                📦 Export Dataset
+              </button>
+            </div>
+            
+            <!-- Progress -->
+            <div id="autoLabelProgress" class="extraction-progress hidden">
+              <div class="progress-info">
+                <span id="autoLabelStatus">Processing...</span>
+                <span id="autoLabelCount">0 / 0</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="autoLabelProgressBar"></div>
+              </div>
+            </div>
+            
+            <!-- Stats -->
+            <div id="autoLabelStats" class="labeling-stats-grid hidden">
+              <div class="stat-card-small">
+                <div class="stat-label-small">Total Frames</div>
+                <div class="stat-value-small" id="statTotalFrames">0</div>
+              </div>
+              <div class="stat-card-small">
+                <div class="stat-label-small">Labeled</div>
+                <div class="stat-value-small" id="statLabeledFrames">0</div>
+              </div>
+              <div class="stat-card-small">
+                <div class="stat-label-small">Auto</div>
+                <div class="stat-value-small" id="statAutoLabels">0</div>
+              </div>
+              <div class="stat-card-small">
+                <div class="stat-label-small">Manual</div>
+                <div class="stat-value-small" id="statManualLabels">0</div>
+              </div>
+            </div>
+          </div>
+
           <div class="detection-config">
             <h3>⚙️ Detection Settings</h3>
+
+            <div class="model-selector">
+              <label>🤖 Detection Model:</label>
+              <select id="modelSelector" class="model-select">
+                <option value="coco-ssd">COCO-SSD (Generic)</option>
+                <option value="yolov8-custom">YOLOv8 (Custom Banking Model)</option>
+              </select>
+              <div id="modelStatus" class="model-status">Loading...</div>
+            </div>
 
             <label class="checkbox-label">
               <input type="checkbox" id="detectPeople" checked />
@@ -102,6 +259,81 @@
             <button id="exportData" class="btn btn-secondary" disabled>💾 Export Data</button>
           </div>
 
+          <div class="roi-controls">
+            <h3>🎯 Regions of Interest (ROI)</h3>
+            
+            <div class="roi-mode">
+              <label class="checkbox-label">
+                <input type="checkbox" id="drawingMode" />
+                <span>✏️ Drawing Mode</span>
+              </label>
+            </div>
+
+            <div class="roi-shape-select">
+              <label>Shape Type:</label>
+              <select id="shapeType" class="shape-select">
+                <option value="rectangle">📐 Rectangle</option>
+                <option value="polygon">⬡ Polygon</option>
+              </select>
+            </div>
+
+            <div class="roi-buttons">
+              <button id="completePolygon" class="btn btn-small" disabled>✓ Complete Polygon</button>
+              <button id="clearZones" class="btn btn-small">🗑️ Clear All Zones</button>
+            </div>
+
+            <div class="zones-list">
+              <h4>Active Zones</h4>
+              <div id="zonesList" class="zones-list-content">
+                <p class="empty-message">No zones defined. Enable drawing mode and draw on the video.</p>
+              </div>
+            </div>
+
+            <div class="zone-actions">
+              <button id="exportZones" class="btn btn-small" disabled>📤 Export Zones</button>
+              <button id="importZones" class="btn btn-small">📥 Import Zones</button>
+            </div>
+          </div>
+
+          <div class="heatmap-controls">
+            <h3>🔥 Heat Map</h3>
+            
+            <div class="heatmap-toggle">
+              <label class="checkbox-label">
+                <input type="checkbox" id="heatmapEnabled" />
+                <span>Show Heat Map</span>
+              </label>
+            </div>
+
+            <div class="heatmap-settings">
+              <div class="slider-control">
+                <label for="heatmapIntensity">Intensity:</label>
+                <input type="range" id="heatmapIntensity" min="0" max="200" value="100" step="10" />
+                <span id="intensityValue">1.0</span>
+              </div>
+
+              <div class="slider-control">
+                <label for="heatmapOpacity">Opacity:</label>
+                <input type="range" id="heatmapOpacity" min="0" max="100" value="50" step="5" />
+                <span id="opacityValue">50%</span>
+              </div>
+
+              <div class="color-scheme-select">
+                <label for="heatmapColorScheme">Color Scheme:</label>
+                <select id="heatmapColorScheme" class="color-scheme">
+                  <option value="hot">🔥 Hot</option>
+                  <option value="cool">❄️ Cool</option>
+                  <option value="rainbow">🌈 Rainbow</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="heatmap-actions">
+              <button id="clearHeatmap" class="btn btn-small">🗑️ Clear</button>
+              <button id="exportHeatmap" class="btn btn-small" disabled>📷 Export</button>
+            </div>
+          </div>
+
           <div class="model-status">
             <h3>🤖 Model Status</h3>
             <div id="modelStatus" class="status-indicator">
@@ -130,6 +362,7 @@
               height="540"
               style="display: none"
             ></video>
+            <canvas id="heatmapCanvas"></canvas>
             <canvas id="detectionCanvas"></canvas>
           </div>
 
@@ -210,6 +443,9 @@
               <div id="detectionLog" class="log-content"></div>
             </div>
           </div>
+          
+          <!-- Labeling Interface Container -->
+          <div id="labelingInterfaceContainer" style="display: none; margin-top: 20px;"></div>
         </main>
       </div>
     </div>
@@ -218,10 +454,18 @@
     <script src="/node_modules/@tensorflow-models/coco-ssd/dist/coco-ssd.min.js"></script>
     <script src="/node_modules/video.js/dist/video.min.js"></script>
     <script src="/node_modules/chart.js/dist/chart.umd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.17.0/dist/ort.min.js"></script>
 
     <!-- Load modules -->
     <script src="modules/error-handler.js"></script>
     <script src="modules/profile-manager.js"></script>
+    <script src="modules/roi-manager.js"></script>
+    <script src="modules/heat-map.js"></script>
+    <script src="modules/frame-extractor.js"></script>
+    <script src="modules/auto-labeling-engine.js"></script>
+    <script src="modules/labeling-interface.js"></script>
+    <script src="modules/yolov8-engine.js"></script>
     <script src="modules/detection-engine.js"></script>
     <script src="modules/chart-manager.js"></script>
     <script src="modules/data-exporter.js"></script>

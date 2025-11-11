@@ -18,6 +18,9 @@
     "DataExporter": "readonly",
     "ErrorHandler": "readonly",
     "ProfileManager": "readonly",
+    "ROIManager": "readonly",
+    "HeatMap": "readonly",
+    "FrameExtractor": "readonly",
     "videojs": "readonly"
   },
   "rules": {

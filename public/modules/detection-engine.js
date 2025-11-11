@@ -74,6 +74,14 @@ class DetectionEngine {
       'cup'
     ];
 
+    // Classes to exclude due to frequent misidentification
+    this.excludedClasses = [
+      'oven', // Frequently misidentifies ATMs, vending machines, etc.
+      'microwave', // Similar issues
+      'toaster', // Rarely useful in outdoor/security scenarios
+      'sink' // Often misidentified
+    ];
+
     this.isModelLoaded = false;
     this.detectionInProgress = false;
   }
@@ -101,10 +109,11 @@ class DetectionEngine {
    * Detect objects in a video frame
    * @async
    * @param {HTMLVideoElement} videoElement - Video element to analyze
+   * @param {Object} roiManager - ROI Manager instance (optional)
    * @returns {Promise<Array>} Array of filtered predictions
    * @throws {Error} If detection fails or model not loaded
    */
-  async detectFrame(videoElement) {
+  async detectFrame(videoElement, roiManager = null) {
     if (!this.isModelLoaded || !this.model) {
       throw new Error('AI model not loaded. Please wait for model to load.');
     }
@@ -129,8 +138,10 @@ class DetectionEngine {
       const detectionTime = endTime - startTime;
       const fps = Math.round(1000 / detectionTime);
 
-      // Filter predictions based on configuration
-      const filtered = this.filterPredictions(predictions);
+      // Filter predictions based on configuration and ROI zones
+      const videoWidth = videoElement.videoWidth;
+      const videoHeight = videoElement.videoHeight;
+      const filtered = this.filterPredictions(predictions, roiManager, videoWidth, videoHeight);
 
       this.detectionInProgress = false;
 
@@ -148,9 +159,12 @@ class DetectionEngine {
   /**
    * Filter predictions based on configuration settings
    * @param {Array} predictions - Raw predictions from model
+   * @param {Object} roiManager - ROI Manager instance (optional)
+   * @param {number} videoWidth - Video width for zone calculations
+   * @param {number} videoHeight - Video height for zone calculations
    * @returns {Array} Filtered predictions
    */
-  filterPredictions(predictions) {
+  filterPredictions(predictions, roiManager = null, videoWidth = 0, videoHeight = 0) {
     if (!predictions || !Array.isArray(predictions)) {
       return [];
     }
@@ -158,6 +172,12 @@ class DetectionEngine {
     return predictions.filter((pred) => {
       // Check confidence threshold
       if (pred.score < this.config.confidenceThreshold) {
+        return false;
+      }
+
+      // Exclude problematic classes (e.g., oven misidentifying ATMs)
+      if (this.excludedClasses.includes(pred.class)) {
+        console.log(`[DetectionEngine] Excluded misidentified class: ${pred.class}`);
         return false;
       }
 
@@ -198,6 +218,36 @@ class DetectionEngine {
         !this.config.detectObjects
       ) {
         return false;
+      }
+
+      // Apply ROI zone filtering if ROI manager is provided and zones exist
+      if (roiManager && videoWidth && videoHeight) {
+        const zones = roiManager.getEnabledZones();
+        if (zones.length > 0) {
+          // Convert bbox to normalized coordinates (0-1)
+          const [x, y, width, height] = pred.bbox;
+          const normalizedBbox = {
+            x: x / videoWidth,
+            y: y / videoHeight,
+            width: width / videoWidth,
+            height: height / videoHeight
+          };
+
+          // Check if detection intersects with any enabled zone
+          const intersectingZones = roiManager.getIntersectingZones(
+            normalizedBbox,
+            videoWidth,
+            videoHeight
+          );
+
+          // If no intersecting zones, filter out this detection
+          if (intersectingZones.length === 0) {
+            return false;
+          }
+
+          // Store zone information in prediction for later use
+          pred.zones = intersectingZones;
+        }
       }
 
       return true;

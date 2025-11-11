@@ -52,6 +52,15 @@ class UIController {
       loadProfile: document.getElementById('loadProfile'),
       deleteProfile: document.getElementById('deleteProfile'),
 
+      // ROI Controls
+      drawingMode: document.getElementById('drawingMode'),
+      shapeType: document.getElementById('shapeType'),
+      completePolygon: document.getElementById('completePolygon'),
+      clearZones: document.getElementById('clearZones'),
+      zonesList: document.getElementById('zonesList'),
+      exportZones: document.getElementById('exportZones'),
+      importZones: document.getElementById('importZones'),
+
       // Status
       modelStatus: document.getElementById('modelStatus'),
       statusText: document.querySelector('.status-text'),
@@ -226,6 +235,164 @@ class UIController {
           this.callbacks.onDeleteProfile();
         }
       });
+    }
+
+    // ROI controls
+    if (this.elements.drawingMode) {
+      this.elements.drawingMode.addEventListener('change', (e) => {
+        if (this.callbacks.onDrawingModeChange) {
+          this.callbacks.onDrawingModeChange(e.target.checked);
+        }
+      });
+    }
+
+    if (this.elements.shapeType) {
+      this.elements.shapeType.addEventListener('change', (e) => {
+        if (this.callbacks.onShapeTypeChange) {
+          this.callbacks.onShapeTypeChange(e.target.value);
+        }
+      });
+    }
+
+    if (this.elements.completePolygon) {
+      this.elements.completePolygon.addEventListener('click', () => {
+        if (this.callbacks.onCompletePolygon) {
+          this.callbacks.onCompletePolygon();
+        }
+      });
+    }
+
+    if (this.elements.clearZones) {
+      this.elements.clearZones.addEventListener('click', () => {
+        if (this.callbacks.onClearZones) {
+          this.callbacks.onClearZones();
+        }
+      });
+    }
+
+    if (this.elements.exportZones) {
+      this.elements.exportZones.addEventListener('click', () => {
+        if (this.callbacks.onExportZones) {
+          this.callbacks.onExportZones();
+        }
+      });
+    }
+
+    if (this.elements.importZones) {
+      this.elements.importZones.addEventListener('click', () => {
+        if (this.callbacks.onImportZones) {
+          this.callbacks.onImportZones();
+        }
+      });
+    }
+
+    // Heat map controls
+    const heatmapEnabled = document.getElementById('heatmapEnabled');
+    const heatmapIntensity = document.getElementById('heatmapIntensity');
+    const heatmapOpacity = document.getElementById('heatmapOpacity');
+    const heatmapColorScheme = document.getElementById('heatmapColorScheme');
+    const clearHeatmap = document.getElementById('clearHeatmap');
+    const exportHeatmap = document.getElementById('exportHeatmap');
+
+    if (heatmapEnabled) {
+      heatmapEnabled.addEventListener('change', (e) => {
+        if (this.callbacks.onHeatmapToggle) {
+          this.callbacks.onHeatmapToggle(e.target.checked);
+        }
+      });
+    }
+
+    if (heatmapIntensity) {
+      heatmapIntensity.addEventListener('input', (e) => {
+        const value = e.target.value / 100;
+        document.getElementById('intensityValue').textContent = value.toFixed(1);
+        if (this.callbacks.onHeatmapIntensityChange) {
+          this.callbacks.onHeatmapIntensityChange(value);
+        }
+      });
+    }
+
+    if (heatmapOpacity) {
+      heatmapOpacity.addEventListener('input', (e) => {
+        const value = e.target.value;
+        document.getElementById('opacityValue').textContent = `${value}%`;
+        if (this.callbacks.onHeatmapOpacityChange) {
+          this.callbacks.onHeatmapOpacityChange(value / 100);
+        }
+      });
+    }
+
+    if (heatmapColorScheme) {
+      heatmapColorScheme.addEventListener('change', (e) => {
+        if (this.callbacks.onHeatmapColorSchemeChange) {
+          this.callbacks.onHeatmapColorSchemeChange(e.target.value);
+        }
+      });
+    }
+
+    if (clearHeatmap) {
+      clearHeatmap.addEventListener('click', () => {
+        if (this.callbacks.onClearHeatmap) {
+          this.callbacks.onClearHeatmap();
+        }
+      });
+    }
+
+    if (exportHeatmap) {
+      exportHeatmap.addEventListener('click', () => {
+        if (this.callbacks.onExportHeatmap) {
+          this.callbacks.onExportHeatmap();
+        }
+      });
+    }
+  }
+
+  /**
+   * Update zones list display
+   * @param {Array} zones - Array of zone objects
+   */
+  updateZonesList(zones) {
+    if (!this.elements.zonesList) {
+      return;
+    }
+
+    if (!zones || zones.length === 0) {
+      this.elements.zonesList.innerHTML =
+        '<p class="empty-message">No zones defined. Enable drawing mode and draw on the video.</p>';
+      if (this.elements.exportZones) {
+        this.elements.exportZones.disabled = true;
+      }
+      return;
+    }
+
+    let html = '';
+    zones.forEach((zone) => {
+      html += `
+        <div class="zone-item ${!zone.enabled ? 'disabled' : ''}" data-zone-id="${zone.id}">
+          <div class="zone-color" style="background: ${zone.color}"></div>
+          <div class="zone-info">
+            <div class="zone-name">${zone.name}</div>
+            <div class="zone-details">${zone.type} • ${zone.enabled ? 'Enabled' : 'Disabled'}</div>
+          </div>
+          <div class="zone-controls">
+            <button class="zone-btn toggle" onclick="window.videoAnalytics.toggleZone('${zone.id}')" title="Toggle">
+              ${zone.enabled ? '👁️' : '🚫'}
+            </button>
+            <button class="zone-btn rename" onclick="window.videoAnalytics.renameZone('${zone.id}')" title="Rename">
+              ✏️
+            </button>
+            <button class="zone-btn delete" onclick="window.videoAnalytics.deleteZone('${zone.id}')" title="Delete">
+              🗑️
+            </button>
+          </div>
+        </div>
+      `;
+    });
+
+    this.elements.zonesList.innerHTML = html;
+
+    if (this.elements.exportZones) {
+      this.elements.exportZones.disabled = false;
     }
   }
 

@@ -46,6 +46,7 @@ const upload = multer({
 // Serve static files
 app.use(express.static('public'));
 app.use('/uploads', express.static(uploadsDir));
+app.use('/models', express.static(path.join(__dirname, 'models')));
 app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 
 // API Routes

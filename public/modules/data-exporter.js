@@ -42,9 +42,9 @@ class DataExporter {
       throw new Error('No detection data to export');
     }
 
-    // CSV header
+    // CSV header (added Zone Info column)
     let csv =
-      'Timestamp,People,Vehicles,Animals,Sports Equipment,Furniture,Other Objects,Total Objects,Object Details\n';
+      'Timestamp,People,Vehicles,Animals,Sports Equipment,Furniture,Other Objects,Total Objects,Zone Info,Object Details\n';
 
     // CSV rows
     detectionData.forEach((record) => {
@@ -58,6 +58,7 @@ class DataExporter {
       let furniture = 0;
       let others = 0;
       const details = [];
+      const zoneInfo = new Set();
 
       predictions.forEach((pred) => {
         const category = this.categorizeObject(pred.class);
@@ -76,12 +77,18 @@ class DataExporter {
         }
 
         details.push(`${pred.class}(${(pred.score * 100).toFixed(1)}%)`);
+
+        // Collect zone information if available
+        if (pred.zones && pred.zones.length > 0) {
+          pred.zones.forEach((zone) => zoneInfo.add(zone));
+        }
       });
 
       const total = predictions.length;
       const detailsStr = details.join('; ');
+      const zoneInfoStr = zoneInfo.size > 0 ? Array.from(zoneInfo).join('; ') : 'All zones';
 
-      csv += `${timestamp},${people},${vehicles},${animals},${sports},${furniture},${others},${total},"${detailsStr}"\n`;
+      csv += `${timestamp},${people},${vehicles},${animals},${sports},${furniture},${others},${total},"${zoneInfoStr}","${detailsStr}"\n`;
     });
 
     const blob = new Blob([csv], { type: 'text/csv' });
